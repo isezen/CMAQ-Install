@@ -125,8 +125,8 @@ def get_fnl_grib2(year, month=None, day=None, hour=None,
 if __name__ == "__main__":
     description = 'Download FNL data.\n'
     epilog = 'Example of use:\n' + \
-             ' %(prog)s /usr/local/share\n' + \
-             ' %(prog)s C:\\air-database\n'
+             ' %(prog)s -y 2016 -m 1 -e john.doe@mail.com -p 123456\n' + \
+             ' %(prog)s -y 2015 -m 2\n'
 
     try:
         p = _create_argparser_(description, epilog)
