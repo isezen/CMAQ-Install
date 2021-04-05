@@ -55,7 +55,7 @@ def get_fnl(list_of_files, email=None, password=None, verbose=True):
         authenticate = True
 
     if authenticate:
-        if not (isinstance(email, str) or isinstance(password, str)):
+        if not (isinstance(email, str) and isinstance(password, str)):
             err = 'email and password is required for authentication'
             raise ValueError(err)
 
