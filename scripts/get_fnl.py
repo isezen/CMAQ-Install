@@ -6,6 +6,7 @@
 #   i.e. - "chmod 755 <name_of_script>"
 #
 
+import signal
 import sys
 import os
 from urllib.request import build_opener
@@ -30,6 +31,22 @@ __year__ = '2021'
 _auth_file = join(str(Path.home()), '.auth.rda.ucar.edu')
 
 
+class ExitHelper():
+
+    def __init__(self):
+        self._state = False
+        signal.signal(signal.SIGINT, self.change_state)
+
+    def change_state(self, signum, frame):
+        print("\nStopping...")
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+        self._state = True
+
+    @property
+    def exit(self):
+        return self._state
+
+
 def _create_argparser_(description, epilog):
     file_py = os.path.basename(sys.argv[0])
     p = argparse.ArgumentParser(description=description,
@@ -42,7 +59,8 @@ def _create_argparser_(description, epilog):
     return(p)
 
 
-def get_fnl(list_of_files, email=None, password=None, verbose=True):
+def get_fnl(list_of_files, pth=os.getcwd(), email=None, password=None,
+            verbose=True):
     cj = cookielib.MozillaCookieJar()
     opener = build_opener(HTTPCookieProcessor(cj))
     authenticate = False
@@ -65,24 +83,28 @@ def get_fnl(list_of_files, email=None, password=None, verbose=True):
         cj.clear_session_cookies()
         cj.save(_auth_file, True, True)
 
+    flag = ExitHelper()
     for file in list_of_files:
         idx = file.rfind('/')
         ofile = file[idx + 1:] if idx > 0 else file
-        if exists(ofile):
-            sys.stdout.write(ofile + ' already exist.\n')
+        ofile2 = join(pth, ofile)
+        if exists(ofile2):
+            sys.stdout.write('* ' + ofile + ' already exist.\n')
         else:
             if verbose:
-                sys.stdout.write('downloading ' + ofile + ' ... ')
+                sys.stdout.write('* downloading ' + ofile + ' ... ')
                 sys.stdout.flush()
             infile = opener.open('http://rda.ucar.edu/data/OS/ds083.2/' + file)
-            with open(ofile, 'wb') as outfile:
+            with open(ofile2, 'wb') as outfile:
                 outfile.write(infile.read())
             if verbose:
                 sys.stdout.write('done.\n')
+        if flag.exit:
+            break
 
 
 def get_fnl_grib2(year, month=None, day=None, hour=None,
-                  email=None, password=None, verbose=True):
+                  pth=os.getcwd(), email=None, password=None, verbose=True):
     if month is None:
         month = list(range(1, 13))
     if day is None:
@@ -119,7 +141,7 @@ def get_fnl_grib2(year, month=None, day=None, hour=None,
     s = "grib2/%Y/%Y.%m/fnl_%Y%m%d_%H_00.grib2"
     list_of_files = [d.strftime(s) for d in dates]
 
-    get_fnl(list_of_files, email, password, verbose)
+    get_fnl(list_of_files, pth, email, password, verbose)
 
 
 if __name__ == "__main__":
@@ -132,6 +154,8 @@ if __name__ == "__main__":
         p = _create_argparser_(description, epilog)
         p.add_argument('-q', '--quiet', help="Suppress verbose output",
                        default=False, action="store_true")
+        p.add_argument('path', nargs='?', default=os.getcwd(),
+                       help="Path to FNL files to save.")
         p.add_argument('-y', '--years', nargs='+', required=True)
         p.add_argument('-m', '--months', nargs='+')
         p.add_argument('-d', '--days', nargs='+')
@@ -139,8 +163,7 @@ if __name__ == "__main__":
         p.add_argument('-p', '--password', type=str, nargs='?')
 
         args = p.parse_args()
-        get_fnl_grib2(args.years, args.months, args.days, None,
+        get_fnl_grib2(args.years, args.months, args.days, None, args.path,
                       args.email, args.password, not args.quiet)
     except Exception as e:  # pylint: disable=W0703
         print(e)
-
