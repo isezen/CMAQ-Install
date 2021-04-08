@@ -1,10 +1,18 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
-#
-# python script to download selected files from rda.ucar.edu
-# after you save the file, don't forget to make it executable
-#   i.e. - "chmod 755 <name_of_script>"
-#
+# pylint: disable=C0103,W0621,W0702,W0703
+
+"""
+Download FNL data from rda.ucar.edu
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+python script to download selected files from rda.ucar.edu
+after you save the file, don't forget to make it executable
+  i.e. - "chmod 755 <name_of_script>"
+
+SEE: https://rda.ucar.edu/datasets/ds083.2/index.html#cgi-bin/datasets/
+     getWebList?dsnum=083.2&action=showAll&disp=
+"""
+
 
 import signal
 import sys
@@ -27,27 +35,30 @@ __email__ = 'sezenismail@gmail.com'
 __license__ = 'AGPL v3.0'
 __year__ = '2021'
 
-#
-_auth_file = join(str(Path.home()), '.auth.rda.ucar.edu')
+
+_AUTH_FILE = join(str(Path.home()), '.auth.rda.ucar.edu')
 
 
 class ExitHelper():
-
+    """ Class to exit from script gracefully """
     def __init__(self):
         self._state = False
         signal.signal(signal.SIGINT, self.change_state)
 
-    def change_state(self, signum, frame):
+    def change_state(self):
+        """ Change statie of exit status """
         print("\nStopping...")
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         self._state = True
 
     @property
     def exit(self):
+        """ Get exit state """
         return self._state
 
 
 def _create_argparser_(description, epilog):
+    """ Create an argparser object """
     file_py = os.path.basename(sys.argv[0])
     p = argparse.ArgumentParser(description=description,
                                 epilog=epilog.format(file_py),
@@ -56,16 +67,16 @@ def _create_argparser_(description, epilog):
                    version='{} {}\n{} (c) {} {}'.format(file_py, __version__,
                                                         __license__, __year__,
                                                         __author__))
-    return(p)
+    return p
 
 
-def get_fnl(list_of_files, pth=os.getcwd(), email=None, password=None,
-            verbose=True):
+def authenticate(email, password):
+    """ Authentixcate to rda.ucar.edu """
     cj = cookielib.MozillaCookieJar()
     opener = build_opener(HTTPCookieProcessor(cj))
     authenticate = False
-    if os.path.isfile(_auth_file):
-        cj.load(_auth_file, False, True)
+    if os.path.isfile(_AUTH_FILE):
+        cj.load(_AUTH_FILE, False, True)
         for cookie in cj:
             if (cookie.name == "sess" and cookie.is_expired()):
                 authenticate = True
@@ -81,7 +92,14 @@ def get_fnl(list_of_files, pth=os.getcwd(), email=None, password=None,
         data = 'email={}&password={}&action=login'.format(email, password)
         opener.open(url, data.encode('utf-8'))
         cj.clear_session_cookies()
-        cj.save(_auth_file, True, True)
+        cj.save(_AUTH_FILE, True, True)
+    return opener
+
+
+def get_fnl(list_of_files, pth=os.getcwd(), email=None, password=None,
+            verbose=True):
+    """ Download FNL data from  rda.ucar.edu """
+    opener = authenticate(email, password)
 
     flag = ExitHelper()
     for file in list_of_files:
@@ -103,8 +121,10 @@ def get_fnl(list_of_files, pth=os.getcwd(), email=None, password=None,
             break
 
 
-def get_fnl_grib2(year, month=None, day=None, hour=None,
-                  pth=os.getcwd(), email=None, password=None, verbose=True):
+def get_fnl_grib2(year, month=None, day=None,  # pylint: disable=R0913
+                  hour=None, pth=os.getcwd(), email=None, password=None,
+                  verbose=True):
+    """ Download grib2 data from rda.ucar.edu """
     if month is None:
         month = list(range(1, 13))
     if day is None:
@@ -145,13 +165,13 @@ def get_fnl_grib2(year, month=None, day=None, hour=None,
 
 
 if __name__ == "__main__":
-    description = 'Download FNL data.\n'
-    epilog = 'Example of use:\n' + \
+    DESCRIPTION = 'Download FNL data.\n'
+    EPILOG = 'Example of use:\n' + \
              ' %(prog)s -y 2016 -m 1 -e john.doe@mail.com -p 123456\n' + \
              ' %(prog)s -y 2015 -m 2\n'
 
     try:
-        p = _create_argparser_(description, epilog)
+        p = _create_argparser_(DESCRIPTION, EPILOG)
         p.add_argument('-q', '--quiet', help="Suppress verbose output",
                        default=False, action="store_true")
         p.add_argument('path', nargs='?', default=os.getcwd(),
