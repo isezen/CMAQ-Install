@@ -14,20 +14,20 @@ SEE: https://rda.ucar.edu/datasets/ds083.2/index.html#cgi-bin/datasets/
 """
 
 
+import argparse
+import http.cookiejar as cookielib
+import itertools
+import os
 import signal
 import sys
-import os
-from urllib.request import build_opener
-from urllib.request import HTTPCookieProcessor
-import http.cookiejar as cookielib
-from os.path import join
-from os.path import exists
-from pathlib import Path
+
+from argparse import RawTextHelpFormatter as _rtformatter
 from datetime import datetime as _dt
 from datetime import timezone as _tz
-import itertools
-import argparse
-from argparse import RawTextHelpFormatter as _rtformatter
+from pathlib import Path
+from urllib.request import HTTPCookieProcessor
+from urllib.request import build_opener
+
 
 __version__ = '0.0.1.dev'
 __author__ = 'Ismail SEZEN'
@@ -36,7 +36,7 @@ __license__ = 'AGPL v3.0'
 __year__ = '2021'
 
 
-_AUTH_FILE = join(str(Path.home()), '.auth.rda.ucar.edu')
+_AUTH_FILE = os.path.join(str(Path.home()), '.auth.rda.ucar.edu')
 
 
 class ExitHelper():
@@ -105,8 +105,8 @@ def get_fnl(list_of_files, pth=os.getcwd(), email=None, password=None,
     for file in list_of_files:
         idx = file.rfind('/')
         ofile = file[idx + 1:] if idx > 0 else file
-        ofile2 = join(pth, ofile)
-        if exists(ofile2):
+        ofile2 = os.path.join(pth, ofile)
+        if os.path.exists(ofile2):
             sys.stdout.write('* ' + ofile + ' already exist.\n')
         else:
             if verbose:
