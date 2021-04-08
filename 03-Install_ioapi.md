@@ -95,16 +95,8 @@ cp Makefile.nocpl Makefile
 
 14. You need to edit line 65 of the `Makefile` to link the NetCDF libraries.
 
-If you installed NetCDF from Ubuntu repositories, use the following:
-
 ```bash
 LIBS = -L${OBJDIR} -lioapi `nf-config --flibs` `nc-config --libs` $(OMPLIBS) $(ARCHLIB) $(ARCHLIBS)
-```
-
-If you compiled and installed NetCDF from source, use the following string. `NETCDF` is location of custom NetCDF installation.
-
-```bash
-LIBS = -L${OBJDIR} -lioapi -L${NETCDF}/lib -lnetcdff -L${NETCDF}/lib -lnetcdf $(OMPLIBS) $(ARCHLIB) $(ARCHLIBS)
 ```
 
 15. Run the make command to compile m3tools
