@@ -41,6 +41,7 @@ _AUTH_FILE = os.path.join(str(Path.home()), '.auth.rda.ucar.edu')
 
 class ExitHelper():
     """ Class to exit from script gracefully """
+
     def __init__(self):
         self._state = False
         signal.signal(signal.SIGINT, self.change_state)
