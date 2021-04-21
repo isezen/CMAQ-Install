@@ -43,6 +43,7 @@ def get_script(year, month, day, dom_size, dom_num, proj_name, region,
                dir_in_met, dir_in_geo, dir_out, dir_prog, in_met_files,
                NCOLS, NROWS, compiler='gcc'):
     script = """
+    #/bin/csh -f
     source /mnt/ssd2/APPS/CMAQ/config_cmaq.csh {}
 
     set year = {}
@@ -326,4 +327,4 @@ if __name__ == "__main__":
                                     dir_in_met, dir_in_geo, dir_out, dir_prog,
                                     in_met_files, NCOLS, NROWS)
 
-                status = subprocess.run(['csh', '-c', script])
+                status = subprocess.Popen(['csh', '-c', script])
