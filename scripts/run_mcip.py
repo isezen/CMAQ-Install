@@ -74,10 +74,10 @@ def get_script(year, month, day, dom_size, dom_num, proj_name, region,
     set LWOUT   = 0
     set LUVBOUT = 1
 
-    set MCIP_START=${{year}}-${{month}}-${{day}}-01:00:00.0000  # [UTC]
-    set MCIP_END=${{year}}-${{month}}-${{day}}-23:00:00.0000  # [UTC]
+    set MCIP_START=${{year}}-${{month}}-${{day}}-01:00:00.0000
+    set MCIP_END=${{year}}-${{month}}-${{day}}-23:00:00.0000
 
-    set INTVL      = 60 # [min]
+    set INTVL      = 60
 
     set IOFORM = 1
 
