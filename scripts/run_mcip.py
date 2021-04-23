@@ -43,232 +43,230 @@ def get_script(year, month, day, dom_size, dom_num, proj_name, region,
                dir_in_met, dir_in_geo, dir_out, dir_prog, in_met_files,
                NCOLS, NROWS, compiler='gcc'):
     script = """
-    #/bin/csh -f
-    source /mnt/ssd2/APPS/CMAQ/config_cmaq.csh {}
+source /mnt/ssd2/APPS/CMAQ/config_cmaq.csh {}
 
-    set year = {}
-    set month = {:02d}
-    set day = {:02d}
-    set dom_size = {}km
-    set dom_num = d{:02d}
-    set project_name = {}
-    set region = {}
+set year = {}
+set month = {:02d}
+set day = {:02d}
+set dom_size = {}km
+set dom_num = d{:02d}
+set project_name = {}
+set region = {}
 
-    set APPL       = ${{project_name}}_${{month}}_${{year}}_${{dom_size}}
-    set CoordName  = LambertConformal
-    set GridName   = ${{dom_size}}
+set APPL       = ${{project_name}}_${{month}}_${{year}}_${{dom_size}}
+set CoordName  = LambertConformal
+set GridName   = ${{dom_size}}
 
-    set DataPath   = $CMAQ_DATA
-    set InMetDir   = {}
-    set InGeoDir   = {}
+set DataPath   = $CMAQ_DATA
+set InMetDir   = {}
+set InGeoDir   = {}
 
-    set OutDir     = {}
-    set ProgDir    = {}
-    set WorkDir    = ${{OutDir}}
+set OutDir     = {}
+set ProgDir    = {}
+set WorkDir    = ${{OutDir}}
 
-    {}
+{}
 
-    set IfGeo      = "T"
-    set InGeoFile  = ${{InGeoDir}}/geo_em.${{dom_num}}.nc
+set IfGeo      = "T"
+set InGeoFile  = ${{InGeoDir}}/geo_em.${{dom_num}}.nc
 
-    set LPV     = 0
-    set LWOUT   = 0
-    set LUVBOUT = 1
+set LPV     = 0
+set LWOUT   = 0
+set LUVBOUT = 1
 
-    set MCIP_START=${{year}}-${{month}}-${{day}}-01:00:00.0000
-    set MCIP_END=${{year}}-${{month}}-${{day}}-23:00:00.0000
+set MCIP_START=${{year}}-${{month}}-${{day}}-01:00:00.0000
+set MCIP_END=${{year}}-${{month}}-${{day}}-23:00:00.0000
 
-    set INTVL      = 60
+set INTVL      = 60
 
-    set IOFORM = 1
+set IOFORM = 1
 
-    set BTRIM = 0
+set BTRIM = 0
 
-    set X0    =  1
-    set Y0    =  1
-    set NCOLS =  {}
-    set NROWS =  {}
+set X0    =  1
+set Y0    =  1
+set NCOLS =  {}
+set NROWS =  {}
 
-    set LPRT_COL = 0
-    set LPRT_ROW = 0
+set LPRT_COL = 0
+set LPRT_ROW = 0
 
-    set WRF_LC_REF_LAT = -999.0
+set WRF_LC_REF_LAT = -999.0
 
-    set PROG = mcip
+set PROG = mcip
 
-    date
+date
 
-    if ( ! -d $InMetDir ) then
-      echo "No such input directory $InMetDir"
-      exit 1
-    endif
+if ( ! -d $InMetDir ) then
+  echo "No such input directory $InMetDir"
+  exit 1
+endif
 
-    if ( ! -d $OutDir ) then
-      echo "No such output directory...will try to create one"
-      mkdir -p $OutDir
-      if ( $status != 0 ) then
-        echo "Failed to make output directory, $OutDir"
-        exit 1
-      endif
-    endif
+if ( ! -d $OutDir ) then
+  echo "No such output directory...will try to create one"
+  mkdir -p $OutDir
+  if ( $status != 0 ) then
+    echo "Failed to make output directory, $OutDir"
+    exit 1
+  endif
+endif
 
-    if ( ! -d $ProgDir ) then
-      echo "No such program directory $ProgDir"
-      exit 1
-    endif
+if ( ! -d $ProgDir ) then
+  echo "No such program directory $ProgDir"
+  exit 1
+endif
 
-    if ( $IfGeo == "T" ) then
-      if ( ! -f $InGeoFile ) then
-        echo "No such input file $InGeoFile"
-        exit 1
-      endif
-    endif
+if ( $IfGeo == "T" ) then
+  if ( ! -f $InGeoFile ) then
+    echo "No such input file $InGeoFile"
+    exit 1
+  endif
+endif
 
-    foreach fil ( $InMetFiles )
-      if ( ! -f $fil ) then
-        echo "No such input file $fil"
-        exit 1
-      endif
-    end
+foreach fil ( $InMetFiles )
+  if ( ! -f $fil ) then
+    echo "No such input file $fil"
+    exit 1
+  endif
+end
 
-    if ( ! -f $ProgDir/$PROG.exe ) then
-      echo "Could not find $PROG.exe"
-      exit 1
-    endif
+if ( ! -f $ProgDir/$PROG.exe ) then
+  echo "Could not find $PROG.exe"
+  exit 1
+endif
 
-    if ( ! -d $WorkDir ) then
-      mkdir -p $WorkDir
-      if ( $status != 0 ) then
-        echo "Failed to make work directory, $WorkDir"
-        exit 1
-      endif
-    endif
+if ( ! -d $WorkDir ) then
+  mkdir -p $WorkDir
+  if ( $status != 0 ) then
+    echo "Failed to make work directory, $WorkDir"
+    exit 1
+  endif
+endif
 
-    cd $WorkDir
+cd $WorkDir
 
-    if ( $IfGeo == "T" ) then
-      if ( -f $InGeoFile ) then
-        set InGeo = $InGeoFile
-      else
-        set InGeo = "no_file"
-      endif
-    else
-      set InGeo = "no_file"
-    endif
+if ( $IfGeo == "T" ) then
+  if ( -f $InGeoFile ) then
+    set InGeo = $InGeoFile
+  else
+    set InGeo = "no_file"
+  endif
+else
+  set InGeo = "no_file"
+endif
 
-    set FILE_GD  = $OutDir/GRIDDESC
+set FILE_GD  = $OutDir/GRIDDESC
 
-    set MACHTYPE = `uname`
-    if ( ( $MACHTYPE == "AIX" ) || ( $MACHTYPE == "Darwin" ) ) then
-      set Marker = "/"
-    else
-      set Marker = "&END"
-    endif
+set MACHTYPE = `uname`
+if ( ( $MACHTYPE == "AIX" ) || ( $MACHTYPE == "Darwin" ) ) then
+  set Marker = "/"
+else
+  set Marker = "&END"
+endif
 
-    cat > $WorkDir/namelist.$PROG << !
+cat > $WorkDir/namelist.$PROG << !
 
-     &FILENAMES
-      file_gd    = "$FILE_GD"
-      file_mm    = "$InMetFiles[1]",
-    !
+ &FILENAMES
+  file_gd    = "$FILE_GD"
+  file_mm    = "$InMetFiles[1]",
+!
 
-    if ( $#InMetFiles > 1 ) then
-      @ nn = 2
-      while ( $nn <= $#InMetFiles )
-        cat >> $WorkDir/namelist.$PROG << !
-                   "$InMetFiles[$nn]",
-    !
-        @ nn ++
-      end
-    endif
-
-    if ( $IfGeo == "T" ) then
+if ( $#InMetFiles > 1 ) then
+  @ nn = 2
+  while ( $nn <= $#InMetFiles )
     cat >> $WorkDir/namelist.$PROG << !
-      file_geo   = "$InGeo"
-    !
-    endif
+               "$InMetFiles[$nn]",
+!
+    @ nn ++
+  end
+endif
 
-    cat >> $WorkDir/namelist.$PROG << !
-      ioform     =  $IOFORM
-     $Marker
+if ( $IfGeo == "T" ) then
+cat >> $WorkDir/namelist.$PROG << !
+  file_geo   = "$InGeo"
+!
+endif
 
-     &USERDEFS
-      lpv        =  $LPV
-      lwout      =  $LWOUT
-      luvbout    =  $LUVBOUT
-      mcip_start = "$MCIP_START"
-      mcip_end   = "$MCIP_END"
-      intvl      =  $INTVL
-      coordnam   = "$CoordName"
-      grdnam     = "$GridName"
-      btrim      =  $BTRIM
-      lprt_col   =  $LPRT_COL
-      lprt_row   =  $LPRT_ROW
-      wrf_lc_ref_lat = $WRF_LC_REF_LAT
-     $Marker
+cat >> $WorkDir/namelist.$PROG << !
+  ioform     =  $IOFORM
+ $Marker
 
-     &WINDOWDEFS
-      x0         =  $X0
-      y0         =  $Y0
-      ncolsin    =  $NCOLS
-      nrowsin    =  $NROWS
-     $Marker
+ &USERDEFS
+  lpv        =  $LPV
+  lwout      =  $LWOUT
+  luvbout    =  $LUVBOUT
+  mcip_start = "$MCIP_START"
+  mcip_end   = "$MCIP_END"
+  intvl      =  $INTVL
+  coordnam   = "$CoordName"
+  grdnam     = "$GridName"
+  btrim      =  $BTRIM
+  lprt_col   =  $LPRT_COL
+  lprt_row   =  $LPRT_ROW
+  wrf_lc_ref_lat = $WRF_LC_REF_LAT
+ $Marker
 
-    !
+ &WINDOWDEFS
+  x0         =  $X0
+  y0         =  $Y0
+  ncolsin    =  $NCOLS
+  nrowsin    =  $NROWS
+ $Marker
 
-    rm fort.*
-    if ( -f $FILE_GD ) rm -f $FILE_GD
+!
 
-    ln -s $FILE_GD                   fort.4
-    ln -s $WorkDir/namelist.$PROG  fort.8
+rm fort.*
+if ( -f $FILE_GD ) rm -f $FILE_GD
 
-    set NUMFIL = 0
-    foreach fil ( $InMetFiles )
-      @ NN = $NUMFIL + 10
-      ln -s $fil fort.$NN
-      @ NUMFIL ++
-    end
+ln -s $FILE_GD                   fort.4
+ln -s $WorkDir/namelist.$PROG  fort.8
 
-    setenv IOAPI_CHECK_HEADERS  T
-    setenv EXECUTION_ID         $PROG
+set NUMFIL = 0
+foreach fil ( $InMetFiles )
+  @ NN = $NUMFIL + 10
+  ln -s $fil fort.$NN
+  @ NUMFIL ++
+end
 
-    setenv GRID_BDY_2D          $OutDir/GRIDBDY2D_$APPL-$day.nc
-    setenv GRID_CRO_2D          $OutDir/GRIDCRO2D_$APPL-$day.nc
-    setenv GRID_DOT_2D          $OutDir/GRIDDOT2D_$APPL-$day.nc
-    setenv MET_BDY_3D           $OutDir/METBDY3D_$APPL-$day.nc
-    setenv MET_CRO_2D           $OutDir/METCRO2D_$APPL-$day.nc
-    setenv MET_CRO_3D           $OutDir/METCRO3D_$APPL-$day.nc
-    setenv MET_DOT_3D           $OutDir/METDOT3D_$APPL-$day.nc
-    setenv LUFRAC_CRO           $OutDir/LUFRAC_CRO_$APPL-$day.nc
-    setenv SOI_CRO              $OutDir/SOI_CRO_$APPL-$day.nc
-    setenv MOSAIC_CRO           $OutDir/MOSAIC_CRO_$APPL-$day.nc
+setenv IOAPI_CHECK_HEADERS  T
+setenv EXECUTION_ID         $PROG
 
-    if ( -f $GRID_BDY_2D ) rm -f $GRID_BDY_2D
-    if ( -f $GRID_CRO_2D ) rm -f $GRID_CRO_2D
-    if ( -f $GRID_DOT_2D ) rm -f $GRID_DOT_2D
-    if ( -f $MET_BDY_3D  ) rm -f $MET_BDY_3D
-    if ( -f $MET_CRO_2D  ) rm -f $MET_CRO_2D
-    if ( -f $MET_CRO_3D  ) rm -f $MET_CRO_3D
-    if ( -f $MET_DOT_3D  ) rm -f $MET_DOT_3D
-    if ( -f $LUFRAC_CRO  ) rm -f $LUFRAC_CRO
-    if ( -f $SOI_CRO     ) rm -f $SOI_CRO
-    if ( -f $MOSAIC_CRO  ) rm -f $MOSAIC_CRO
+setenv GRID_BDY_2D          $OutDir/GRIDBDY2D_$APPL-$day.nc
+setenv GRID_CRO_2D          $OutDir/GRIDCRO2D_$APPL-$day.nc
+setenv GRID_DOT_2D          $OutDir/GRIDDOT2D_$APPL-$day.nc
+setenv MET_BDY_3D           $OutDir/METBDY3D_$APPL-$day.nc
+setenv MET_CRO_2D           $OutDir/METCRO2D_$APPL-$day.nc
+setenv MET_CRO_3D           $OutDir/METCRO3D_$APPL-$day.nc
+setenv MET_DOT_3D           $OutDir/METDOT3D_$APPL-$day.nc
+setenv LUFRAC_CRO           $OutDir/LUFRAC_CRO_$APPL-$day.nc
+setenv SOI_CRO              $OutDir/SOI_CRO_$APPL-$day.nc
+setenv MOSAIC_CRO           $OutDir/MOSAIC_CRO_$APPL-$day.nc
 
-    if ( -f $OutDir/mcip.nc      ) rm -f $OutDir/mcip.nc
-    if ( -f $OutDir/mcip_bdy.nc  ) rm -f $OutDir/mcip_bdy.nc
+if ( -f $GRID_BDY_2D ) rm -f $GRID_BDY_2D
+if ( -f $GRID_CRO_2D ) rm -f $GRID_CRO_2D
+if ( -f $GRID_DOT_2D ) rm -f $GRID_DOT_2D
+if ( -f $MET_BDY_3D  ) rm -f $MET_BDY_3D
+if ( -f $MET_CRO_2D  ) rm -f $MET_CRO_2D
+if ( -f $MET_CRO_3D  ) rm -f $MET_CRO_3D
+if ( -f $MET_DOT_3D  ) rm -f $MET_DOT_3D
+if ( -f $LUFRAC_CRO  ) rm -f $LUFRAC_CRO
+if ( -f $SOI_CRO     ) rm -f $SOI_CRO
+if ( -f $MOSAIC_CRO  ) rm -f $MOSAIC_CRO
 
-    $ProgDir/$PROG.exe
+if ( -f $OutDir/mcip.nc      ) rm -f $OutDir/mcip.nc
+if ( -f $OutDir/mcip_bdy.nc  ) rm -f $OutDir/mcip_bdy.nc
 
-    if ( $status == 0 ) then
-      rm fort.*
-      exit 0
-    else
-      echo "Error running $PROG"
-      exit 1
-    endif
-    """.format(compiler, year, month, day, dom_size, dom_num, proj_name,
-               region, dir_in_met, dir_in_geo, dir_out, dir_prog, in_met_files,
-               NCOLS, NROWS)
+$ProgDir/$PROG.exe
+
+if ( $status == 0 ) then
+  rm fort.*
+  exit 0
+else
+  echo "Error running $PROG"
+  exit 1
+endif""".format(compiler, year, month, day, dom_size, dom_num, proj_name,
+                region, dir_in_met, dir_in_geo, dir_out, dir_prog,
+                in_met_files, NCOLS, NROWS)
     return script
 
 
@@ -326,5 +324,10 @@ if __name__ == "__main__":
                 script = get_script(y, m, d, ds, dn, proj_name, region,
                                     dir_in_met, dir_in_geo, dir_out, dir_prog,
                                     in_met_files, NCOLS, NROWS)
+                with open('script.csh', 'w') as f:
+                    f.write("#!/bin/csh -f\n")
+                    f.write(script)
 
-                status = subprocess.Popen(['csh', '-c', script])
+                subprocess.call(['chmod', '+x', 'script.csh'])
+                subprocess.call('./script.csh')
+                # status = subprocess.Popen(['csh', '-cf', script])
