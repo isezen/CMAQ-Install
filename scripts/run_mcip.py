@@ -55,7 +55,7 @@ set dom_num = d{:02d}
 set project_name = {}
 set region = {}
 
-set APPL       = ${{project_name}}_${{dom_size}}_${{year}}_${{month}}
+set APPL       = ${{project_name}}_${{dom_size}}_${{year}}${{month}}
 set CoordName  = LambertConformal
 set GridName   = ${{dom_size}}
 
@@ -233,16 +233,16 @@ end
 setenv IOAPI_CHECK_HEADERS  T
 setenv EXECUTION_ID         $PROG
 
-setenv GRID_BDY_2D          $OutDir/GRIDBDY2D_$APPL-$day.nc
-setenv GRID_CRO_2D          $OutDir/GRIDCRO2D_$APPL-$day.nc
-setenv GRID_DOT_2D          $OutDir/GRIDDOT2D_$APPL-$day.nc
-setenv MET_BDY_3D           $OutDir/METBDY3D_$APPL-$day.nc
-setenv MET_CRO_2D           $OutDir/METCRO2D_$APPL-$day.nc
-setenv MET_CRO_3D           $OutDir/METCRO3D_$APPL-$day.nc
-setenv MET_DOT_3D           $OutDir/METDOT3D_$APPL-$day.nc
-setenv LUFRAC_CRO           $OutDir/LUFRAC_CRO_$APPL-$day.nc
-setenv SOI_CRO              $OutDir/SOI_CRO_$APPL-$day.nc
-setenv MOSAIC_CRO           $OutDir/MOSAIC_CRO_$APPL-$day.nc
+setenv GRID_BDY_2D          $OutDir/GRIDBDY2D_$APPL$day.nc
+setenv GRID_CRO_2D          $OutDir/GRIDCRO2D_$APPL$day.nc
+setenv GRID_DOT_2D          $OutDir/GRIDDOT2D_$APPL$day.nc
+setenv MET_BDY_3D           $OutDir/METBDY3D_$APPL$day.nc
+setenv MET_CRO_2D           $OutDir/METCRO2D_$APPL$day.nc
+setenv MET_CRO_3D           $OutDir/METCRO3D_$APPL$day.nc
+setenv MET_DOT_3D           $OutDir/METDOT3D_$APPL$day.nc
+setenv LUFRAC_CRO           $OutDir/LUFRAC_CRO_$APPL$day.nc
+setenv SOI_CRO              $OutDir/SOI_CRO_$APPL$day.nc
+setenv MOSAIC_CRO           $OutDir/MOSAIC_CRO_$APPL$day.nc
 
 if ( -f $GRID_BDY_2D ) rm -f $GRID_BDY_2D
 if ( -f $GRID_CRO_2D ) rm -f $GRID_CRO_2D
