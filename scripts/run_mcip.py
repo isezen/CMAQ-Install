@@ -14,6 +14,7 @@ import subprocess
 import itertools
 from os.path import join
 
+import tempfile
 import calendar
 from collections.abc import Iterable
 from datetime import datetime as _dt
@@ -321,7 +322,8 @@ if __name__ == "__main__":
             dir_out = dir_out_fmt.format(ds, mn)
             dir_in_met = dir_in_met_fmt.format(mn)
 
-            file_script = 'script.csh'
+            tmp = next(tempfile._get_candidate_names())
+            file_script = 'mcip_{}.csh'.format(tmp)
             for d in days:
                 script = get_script(y, m, d, ds, dn, proj_name, region,
                                     dir_in_met, dir_in_geo, dir_out, dir_prog,
