@@ -9,6 +9,7 @@ Run mcip
 Python script to run mcip
 """
 
+import os
 import subprocess
 import itertools
 from os.path import join
@@ -18,7 +19,7 @@ from collections.abc import Iterable
 from datetime import datetime as _dt
 from datetime import timezone as _tz
 
-year, month = [2015], [1, 2, 3]
+year, month, day = [2015], [1, 2, 3], list(range(1, 32))
 dom_size = [36, 12, 4]
 dom_num = [1, 2, 3, 4, 5]
 proj_name = 'CityAir'
@@ -53,7 +54,7 @@ set dom_num = d{:02d}
 set project_name = {}
 set region = {}
 
-set APPL       = ${{project_name}}_${{month}}_${{year}}_${{dom_size}}
+set APPL       = ${{project_name}}_${{dom_size}}_${{year}}_${{month}}
 set CoordName  = LambertConformal
 set GridName   = ${{dom_size}}
 
@@ -290,10 +291,10 @@ def date_is_ok(year, month, day):
     return False
 
 
-def get_days(year, month):
+def get_days(year, month, day=list(range(1, 32))):
     """ Return days in specific year and month """
     days = []
-    for i in expandgrid(year, month, list(range(1, 32))):
+    for i in expandgrid(year, month, day):
         if date_is_ok(i[0], i[1], i[2]):
             days.append(i[2])
     return days
@@ -313,21 +314,23 @@ if __name__ == "__main__":
 
     for dn, ds in dn_ds:
         for y, m in ym:
-            days = get_days(y, m)
+            days = get_days(y, m, day)
             in_met_files = create_InMetFiles(days, dn)
 
             mn = calendar.month_name[m].lower()
             dir_out = dir_out_fmt.format(ds, mn)
             dir_in_met = dir_in_met_fmt.format(mn)
 
+            file_script = 'script.csh'
             for d in days:
                 script = get_script(y, m, d, ds, dn, proj_name, region,
                                     dir_in_met, dir_in_geo, dir_out, dir_prog,
                                     in_met_files, NCOLS, NROWS)
-                with open('script.csh', 'w') as f:
+                with open(file_script, 'w') as f:
                     f.write("#!/bin/csh -f\n")
                     f.write(script)
 
-                subprocess.call(['chmod', '+x', 'script.csh'])
-                subprocess.call('./script.csh')
+                subprocess.call(['chmod', '+x', file_script])
+                subprocess.call('./' + file_script)
+                os.remove(file_script)
                 # status = subprocess.Popen(['csh', '-cf', script])
