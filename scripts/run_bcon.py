@@ -27,6 +27,7 @@ proj_name = 'CityAir'
 region = 'aegean'
 NCOLS, NROWS = 172, 94
 
+cmaq_ver = '532'
 compiler = 'gcc'
 compiler_mother = 'pgi'
 dir_cmaq = '/mnt/ssd2/APPS/CMAQ'
@@ -59,14 +60,14 @@ endif
 echo " "; echo " Input data path, CMAQ_DATA set to $CMAQ_DATA"; echo " "
 
 set year = {}
-set month = {}
+set month = {:02d}
 set month_name = {}
-set day = {}
+set day = {:02d}
 set dom_size = {:02d}km
 set dom_size_mother = {:02d}km
 set compiler_mother = {} # pgi
 set project_name = {}
-set dir_porj = /mnt/disk2/projects/${{project_name}}
+set dir_proj = /mnt/disk2/projects/${{project_name}}
 
 set APPL = ${{project_name}}_${{dom_size}}_${{year}}_${{month}}
 set VRSN = v532
@@ -95,8 +96,8 @@ set YYYYMMDD = `date -ud "${{DATE}}" +%Y%m%d`
 
 if ( $BCON_TYPE == regrid ) then
   setenv CTM_CONC_1 ${{dir_proj}}/cmaq/${{dom_size_mother}}/CCTM_CONC_${{VRSN}}_${{compiler_mother}}_${{project_name}}_${{year}}_${{dom_size_mother}}_${{YYYYMMDD}}.nc
-  setenv MET_CRO_3D_CRS ${{dir_proj}}/mcip/${{dom_size_mother}}/${{month_name}}/METCRO3D_${{project_name}}_${{dom_size_mother}}_${{year}}_${{month}}-${{day}}.nc
-  setenv MET_BDY_3D_FIN ${{dir_proj}}/mcip/${{dom_size}}/${{month_name}}/METBDY3D_${{project_name}}_${{dom_size}}_${{year}}_${{month}}-${{day}}.nc
+  setenv MET_CRO_3D_CRS ${{dir_proj}}/mcip/${{dom_size_mother}}/${{month_name}}/METCRO3D_${{project_name}}_${{dom_size_mother}}_${{YYYYMMDD}}.nc
+  setenv MET_BDY_3D_FIN ${{dir_proj}}/mcip/${{dom_size}}/${{month_name}}/METBDY3D_${{project_name}}_${{dom_size}}_${{YYYYMMDD}}.nc
   setenv BNDY_CONC_1    "$OUTDIR/BCON_${{VRSN}}_${{APPL}}_${{BCON_TYPE}}_${{YYYYMMDD}} -v"
 endif
 
