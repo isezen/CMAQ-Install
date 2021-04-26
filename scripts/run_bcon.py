@@ -25,7 +25,6 @@ dom_size = [12]
 dom_size_mother = [36]
 proj_name = 'CityAir'
 region = 'aegean'
-NCOLS, NROWS = 172, 94
 
 cmaq_ver = '532'
 compiler = 'gcc'
