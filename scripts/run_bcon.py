@@ -29,7 +29,6 @@ NCOLS, NROWS = 172, 94
 
 cmaq_ver = '532'
 compiler = 'gcc'
-compiler_mother = 'pgi'
 dir_cmaq = '/mnt/ssd2/APPS/CMAQ'
 dir_projects = '/mnt/disk2/projects'
 # ----------------------------------
@@ -44,7 +43,7 @@ dir_prog = join(dir_cmaq, 'PREP/mcip/src')
 
 
 def get_script(year, month, day, dom_size, dom_size_mother, proj_name,
-               compiler='gcc', compiler_mother="pgi"):
+               compiler='gcc'):
     mn = calendar.month_name[month].lower()
     script = """
 setenv compiler {}
@@ -65,7 +64,6 @@ set month_name = {}
 set day = {:02d}
 set dom_size = {:02d}km
 set dom_size_mother = {:02d}km
-set compiler_mother = {} # pgi
 set project_name = {}
 set dir_proj = /mnt/disk2/projects/${{project_name}}
 
@@ -95,7 +93,7 @@ set YYMMDD   = `date -ud "${{DATE}}" +%y%m%d`
 set YYYYMMDD = `date -ud "${{DATE}}" +%Y%m%d`
 
 if ( $BCON_TYPE == regrid ) then
-  setenv CTM_CONC_1 ${{dir_proj}}/cmaq/${{dom_size_mother}}/CCTM_CONC_${{VRSN}}_${{compiler_mother}}_${{project_name}}_${{year}}_${{dom_size_mother}}_${{YYYYMMDD}}.nc
+  setenv CTM_CONC_1 ${{dir_proj}}/cmaq/${{dom_size_mother}}/CCTM_CONC_${{VRSN}}_${{compiler}}_${{project_name}}_${{year}}_${{dom_size_mother}}_${{YYYYMMDD}}.nc
   setenv MET_CRO_3D_CRS ${{dir_proj}}/mcip/${{dom_size_mother}}/${{month_name}}/METCRO3D_${{project_name}}_${{dom_size_mother}}_${{YYYYMMDD}}.nc
   setenv MET_BDY_3D_FIN ${{dir_proj}}/mcip/${{dom_size}}/${{month_name}}/METBDY3D_${{project_name}}_${{dom_size}}_${{YYYYMMDD}}.nc
   setenv BNDY_CONC_1    "$OUTDIR/BCON_${{VRSN}}_${{APPL}}_${{BCON_TYPE}}_${{YYYYMMDD}} -v"
@@ -117,7 +115,7 @@ limit
 time $BLD/$EXEC
 
 exit()""".format(compiler, year, month, mn, day, dom_size, dom_size_mother,
-                 compiler_mother, proj_name)
+                 proj_name)
     return script
 
 
