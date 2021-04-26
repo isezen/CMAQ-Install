@@ -18,14 +18,17 @@ import tempfile
 import calendar
 from collections.abc import Iterable
 from datetime import datetime as _dt
+from datetime import timedelta as _td
 from datetime import timezone as _tz
+from collections import namedtuple as _nt
+
+Domain = _nt('Domain', ['no', 'size', 'ncol', 'nrow'])
 
 year, month, day = [2015], [1, 2, 3], list(range(1, 32))
-dom_size = [36, 12, 4]
-dom_num = [1, 2, 3, 4, 5]
+doms = [Domain(1, 36, 124, 90),  # 36km
+        Domain(2, 12, 172, 94)]  # 12km
 proj_name = 'CityAir'
 region = 'aegean'
-NCOLS, NROWS = 172, 94
 
 compiler = 'gcc'
 dir_cmaq = '/mnt/ssd2/APPS/CMAQ'
@@ -41,9 +44,13 @@ dir_out_fmt = join(dir_proj, 'mcip/{}km/{}')
 dir_in_met_fmt = join(dir_proj, 'wrf/{}')
 
 
-def get_script(year, month, day, dom_size, dom_num, proj_name, region,
-               dir_in_met, dir_in_geo, dir_out, dir_prog, in_met_files,
-               NCOLS, NROWS, compiler='gcc'):
+def get_script(year, month, day, dom, proj_name, region, dir_in_met,
+               dir_in_geo, dir_out, dir_prog, in_met_files, compiler='gcc'):
+    fmt = '%Y-%m-%d'
+    date_str = '{}-{}-{}'.format(year, month, day)
+    day_after = _dt.strptime(date_str, fmt).replace(tzinfo=_tz.utc)
+    day_after = day_after + _td(days=1)
+    day_after = day_after.strftime(fmt)
     script = """
 source /mnt/ssd2/APPS/CMAQ/config_cmaq.csh {}
 
@@ -55,7 +62,8 @@ set dom_num = d{:02d}
 set project_name = {}
 set region = {}
 
-set APPL       = ${{project_name}}_${{dom_size}}_${{year}}${{month}}
+set ymd        = ${{year}}${{month}}${{day}}
+set APPL       = ${{project_name}}_${{dom_size}}_${{ymd}}
 set CoordName  = LambertConformal
 set GridName   = ${{dom_size}}
 
@@ -76,8 +84,8 @@ set LPV     = 0
 set LWOUT   = 0
 set LUVBOUT = 1
 
-set MCIP_START=${{year}}-${{month}}-${{day}}-01:00:00.0000
-set MCIP_END=${{year}}-${{month}}-${{day}}-23:00:00.0000
+set MCIP_START=${{year}}-${{month}}-${{day}}-00:00:00.0000
+set MCIP_END={}-00:00:00.0000
 
 set INTVL      = 60
 
@@ -233,16 +241,16 @@ end
 setenv IOAPI_CHECK_HEADERS  T
 setenv EXECUTION_ID         $PROG
 
-setenv GRID_BDY_2D          $OutDir/GRIDBDY2D_$APPL$day.nc
-setenv GRID_CRO_2D          $OutDir/GRIDCRO2D_$APPL$day.nc
-setenv GRID_DOT_2D          $OutDir/GRIDDOT2D_$APPL$day.nc
-setenv MET_BDY_3D           $OutDir/METBDY3D_$APPL$day.nc
-setenv MET_CRO_2D           $OutDir/METCRO2D_$APPL$day.nc
-setenv MET_CRO_3D           $OutDir/METCRO3D_$APPL$day.nc
-setenv MET_DOT_3D           $OutDir/METDOT3D_$APPL$day.nc
-setenv LUFRAC_CRO           $OutDir/LUFRAC_CRO_$APPL$day.nc
-setenv SOI_CRO              $OutDir/SOI_CRO_$APPL$day.nc
-setenv MOSAIC_CRO           $OutDir/MOSAIC_CRO_$APPL$day.nc
+setenv GRID_BDY_2D $OutDir/GRIDBDY2D_$APPL.nc
+setenv GRID_CRO_2D $OutDir/GRIDCRO2D_$APPL.nc
+setenv GRID_DOT_2D $OutDir/GRIDDOT2D_$APPL.nc
+setenv MET_BDY_3D  $OutDir/METBDY3D_$APPL.nc
+setenv MET_CRO_2D  $OutDir/METCRO2D_$APPL.nc
+setenv MET_CRO_3D  $OutDir/METCRO3D_$APPL.nc
+setenv MET_DOT_3D  $OutDir/METDOT3D_$APPL.nc
+setenv LUFRAC_CRO  $OutDir/LUFRAC_CRO_$APPL.nc
+setenv SOI_CRO     $OutDir/SOI_CRO_$APPL.nc
+setenv MOSAIC_CRO  $OutDir/MOSAIC_CRO_$APPL.nc
 
 if ( -f $GRID_BDY_2D ) rm -f $GRID_BDY_2D
 if ( -f $GRID_CRO_2D ) rm -f $GRID_CRO_2D
@@ -266,9 +274,9 @@ if ( $status == 0 ) then
 else
   echo "Error running $PROG"
   exit 1
-endif""".format(compiler, year, month, day, dom_size, dom_num, proj_name,
+endif""".format(compiler, year, month, day, dom.size, dom.num, proj_name,
                 region, dir_in_met, dir_in_geo, dir_out, dir_prog,
-                in_met_files, NCOLS, NROWS)
+                in_met_files, day_after, dom.ncol, dom.nrow)
     return script
 
 
@@ -310,24 +318,23 @@ def create_InMetFiles(days, dom_num):
 
 
 if __name__ == "__main__":
-    dn_ds = expandgrid(dom_num, dom_size)  # domain number and size
     ym = expandgrid(year, month)  # Year and months
 
-    for dn, ds in dn_ds:
+    for dom in doms:
         for y, m in ym:
             days = get_days(y, m, day)
-            in_met_files = create_InMetFiles(days, dn)
+            in_met_files = create_InMetFiles(days, dom.no)
 
             mn = calendar.month_name[m].lower()
-            dir_out = dir_out_fmt.format(ds, mn)
+            dir_out = dir_out_fmt.format(dom.size, mn)
             dir_in_met = dir_in_met_fmt.format(mn)
 
             tmp = next(tempfile._get_candidate_names())
             file_script = 'mcip_{}.csh'.format(tmp)
             for d in days:
-                script = get_script(y, m, d, ds, dn, proj_name, region,
-                                    dir_in_met, dir_in_geo, dir_out, dir_prog,
-                                    in_met_files, NCOLS, NROWS)
+                script = get_script(y, m, d, dom, proj_name, region,
+                                    dir_in_met, dir_in_geo, dir_out,
+                                    dir_prog, in_met_files)
                 with open(file_script, 'w') as f:
                     f.write("#!/bin/csh -f\n")
                     f.write(script)
