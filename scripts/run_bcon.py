@@ -23,6 +23,7 @@ from collections import namedtuple as _nt
 
 Domain = _nt('Domain', ['outer', 'inner'])
 
+BCTYPE = 'regrid'  # profile | regrid
 compiler = 'gcc'
 cmaq_ver = '532'
 proj_name = 'CityAir'
@@ -35,7 +36,7 @@ dir_proj = join(dir_projects, proj_name)
 
 
 def get_script(year, month, day, dom_outer, dom_inner, proj_name,
-               dir_proj, cmaq_ver='532', compiler='gcc'):
+               dir_proj, BCTYPE='regrid', cmaq_ver='532', compiler='gcc'):
     mn = calendar.month_name[month].lower()
     script = """
 setenv compiler {}
@@ -65,7 +66,7 @@ set dir_outer = ${{dir_mcip}}/${{dom_size_outer}}/${{month_name}}
 
 set APPL = ${{project_name}}_${{dom_size_inner}}_${{year}}_${{month}}
 set VRSN = v{}
-set BCTYPE = regrid
+set BCTYPE = {}
 
 set BLD = ${{CMAQ_HOME}}/PREP/bcon/scripts/BLD_BCON_${{VRSN}}_${{compiler}}
 set EXEC = BCON_${{VRSN}}.exe
@@ -111,7 +112,7 @@ limit
 time $BLD/$EXEC
 
 exit()""".format(compiler, year, month, mn, day, dom_outer, dom_inner,
-                 proj_name, dir_proj, cmaq_ver)
+                 proj_name, dir_proj, cmaq_ver, BCTYPE)
     return script
 
 
@@ -154,7 +155,7 @@ if __name__ == "__main__":
             file_script = 'bcon_{}.csh'.format(tmp)
             for d in days:
                 script = get_script(y, m, d, dom.outer, dom.inner, proj_name,
-                                    dir_proj, cmaq_ver, compiler)
+                                    dir_proj, BCTYPE, cmaq_ver, compiler)
                 with open(file_script, 'w') as f:
                     f.write("#!/bin/csh -f\n")
                     f.write(script)
