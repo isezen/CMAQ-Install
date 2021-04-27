@@ -19,10 +19,13 @@ import calendar
 from collections.abc import Iterable
 from datetime import datetime as _dt
 from datetime import timezone as _tz
+from collections import namedtuple as _nt
+
+Domain = _nt('Domain', ['outer', 'inner'])
 
 year, month, day = [2015], [1, 2, 3], list(range(1, 32))
-dom_size = [12]
-dom_size_mother = [36]
+doms = [Domain(36, 12),  # outer and inner domains
+        Domain(12, 4)]
 proj_name = 'CityAir'
 region = 'aegean'
 
@@ -41,8 +44,8 @@ dir_prog = join(dir_cmaq, 'PREP/mcip/src')
 # dir_in_met_fmt = join(dir_proj, 'wrf/{}')
 
 
-def get_script(year, month, day, dom_size, dom_size_mother, proj_name,
-               compiler='gcc'):
+def get_script(year, month, day, dom_outer, dom_inner, proj_name,
+               cmaq_ver='532', compiler='gcc'):
     mn = calendar.month_name[month].lower()
     script = """
 setenv compiler {}
@@ -61,13 +64,13 @@ set year = {}
 set month = {:02d}
 set month_name = {}
 set day = {:02d}
-set dom_size = {:02d}km
 set dom_size_mother = {:02d}km
+set dom_size = {:02d}km
 set project_name = {}
 set dir_proj = /mnt/disk2/projects/${{project_name}}
 
 set APPL = ${{project_name}}_${{dom_size}}_${{year}}_${{month}}
-set VRSN = v532
+set VRSN = v{}
 set BCTYPE = regrid
 
 set BLD = ${{CMAQ_HOME}}/PREP/bcon/scripts/BLD_BCON_${{VRSN}}_${{compiler}}
@@ -113,8 +116,8 @@ limit
 
 time $BLD/$EXEC
 
-exit()""".format(compiler, year, month, mn, day, dom_size, dom_size_mother,
-                 proj_name)
+exit()""".format(compiler, year, month, mn, day, dom_outer, dom_inner,
+                 proj_name, cmaq_ver)
     return script
 
 
@@ -148,17 +151,16 @@ def get_days(year, month, day=list(range(1, 32))):
 
 
 if __name__ == "__main__":
-    ds_dsm = expandgrid(dom_size, dom_size_mother)  # domain size and mother
     ym = expandgrid(year, month)  # Year and months
-
-    for ds, dsm in ds_dsm:
+    for dom in doms:
         for y, m in ym:
             days = get_days(y, m, day)
 
             tmp = next(tempfile._get_candidate_names())
             file_script = 'bcon_{}.csh'.format(tmp)
             for d in days:
-                script = get_script(y, m, d, ds, dsm, proj_name)
+                script = get_script(y, m, d, dom.outer, dom.inner, proj_name,
+                                    compiler)
                 with open(file_script, 'w') as f:
                     f.write("#!/bin/csh -f\n")
                     f.write(script)
