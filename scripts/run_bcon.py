@@ -21,7 +21,7 @@ from datetime import datetime as _dt
 from datetime import timezone as _tz
 from collections import namedtuple as _nt
 
-Domain = _nt('Domain', ['outer', 'inner'])
+Domain = _nt('Domain', ['outer', 'inner', 'name'])
 
 BCTYPE = 'regrid'  # profile | regrid
 compiler = 'gcc'
@@ -29,8 +29,12 @@ cmaq_ver = '532'
 proj_name = 'CityAir'
 dir_projects = '/mnt/disk2/projects'
 year, month, day = [2015], [1, 2, 3], list(range(1, 32))
-doms = [Domain(36, 12),  # outer and inner domains
-        Domain(12, 4)]
+doms = [Domain(36, 12, 'tr'),
+        Domain(12, 4, 'ege'),
+        Domain(12, 4, 'akd'),
+        Domain(12, 4, 'ica'),
+        Domain(12, 4, 'okd')]
+doms = [doms[0]]
 # ----------------------------------
 dir_proj = join(dir_projects, proj_name)
 

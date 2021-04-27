@@ -22,13 +22,17 @@ from datetime import timedelta as _td
 from datetime import timezone as _tz
 from collections import namedtuple as _nt
 
-Domain = _nt('Domain', ['no', 'size', 'ncol', 'nrow'])
+Domain = _nt('Domain', ['no', 'name', 'size', 'ncol', 'nrow'])
 
 year, month, day = [2015], [1, 2, 3], list(range(1, 32))
-doms = [Domain(1, 36, 124, 90),  # 36km
-        Domain(2, 12, 172, 94)]  # 12km
+doms = [Domain(1, 'eu', 36, 124, 90),  # 36km
+        Domain(2, 'tr', 12, 172, 94),  # 12km
+        Domain(3, 'ege', 4, 100, 100),
+        Domain(4, 'akd', 4, 100, 100),
+        Domain(5, 'ica', 4, 100, 100),
+        Domain(6, 'okd', 4, 100, 100)]
+doms = [doms[0]]  # select domain
 proj_name = 'CityAir'
-region = 'aegean'
 
 compiler = 'gcc'
 dir_cmaq = '/mnt/ssd2/APPS/CMAQ'
@@ -40,7 +44,7 @@ dir_prog = join(dir_cmaq, 'PREP/mcip/src')
 wrfout_fmt = '${{InMetDir}}' \
              '/wrfout_${{dom_num}}_${{year}}-${{month}}-{:02d}_00:00:00'
 dir_in_geo = join(dir_proj, 'WPS')
-dir_out_fmt = join(dir_proj, 'mcip/{}km/{}')
+dir_out_fmt = join(dir_proj, 'mcip/{}km/{}/{}')
 dir_in_met_fmt = join(dir_proj, 'wrf/{}')
 
 
@@ -58,12 +62,13 @@ set year = {}
 set month = {:02d}
 set day = {:02d}
 set dom_size = {}km
+set dom_name = {}
 set dom_num = d{:02d}
 set project_name = {}
 set region = {}
 
 set ymd        = ${{year}}${{month}}${{day}}
-set APPL       = ${{project_name}}_${{dom_size}}_${{ymd}}
+set APPL       = ${{project_name}}_${{dom_size}}_${{dom_name}}_${{ymd}}
 set CoordName  = LambertConformal
 set GridName   = ${{dom_size}}
 
@@ -274,8 +279,8 @@ if ( $status == 0 ) then
 else
   echo "Error running $PROG"
   exit 1
-endif""".format(compiler, year, month, day, dom.size, dom.num, proj_name,
-                region, dir_in_met, dir_in_geo, dir_out, dir_prog,
+endif""".format(compiler, year, month, day, dom.size, dom.name, dom.num,
+                proj_name, region, dir_in_met, dir_in_geo, dir_out, dir_prog,
                 in_met_files, day_after, dom.ncol, dom.nrow)
     return script
 
@@ -326,7 +331,7 @@ if __name__ == "__main__":
             in_met_files = create_InMetFiles(days, dom.no)
 
             mn = calendar.month_name[m].lower()
-            dir_out = dir_out_fmt.format(dom.size, mn)
+            dir_out = dir_out_fmt.format(dom.size, dom.name, mn)
             dir_in_met = dir_in_met_fmt.format(mn)
 
             tmp = next(tempfile._get_candidate_names())
