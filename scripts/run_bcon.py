@@ -23,29 +23,19 @@ from collections import namedtuple as _nt
 
 Domain = _nt('Domain', ['outer', 'inner'])
 
+compiler = 'gcc'
+cmaq_ver = '532'
+proj_name = 'CityAir'
+dir_projects = '/mnt/disk2/projects'
 year, month, day = [2015], [1, 2, 3], list(range(1, 32))
 doms = [Domain(36, 12),  # outer and inner domains
         Domain(12, 4)]
-proj_name = 'CityAir'
-region = 'aegean'
-
-cmaq_ver = '532'
-compiler = 'gcc'
-dir_cmaq = '/mnt/ssd2/APPS/CMAQ'
-dir_projects = '/mnt/disk2/projects'
 # ----------------------------------
-
 dir_proj = join(dir_projects, proj_name)
-dir_prog = join(dir_cmaq, 'PREP/mcip/src')
-# wrfout_fmt = '${{InMetDir}}' \
-#              '/wrfout_${{dom_num}}_${{year}}-${{month}}-{:02d}_00:00:00'
-# dir_in_geo = join(dir_proj, 'WPS')
-# dir_out_fmt = join(dir_proj, 'mcip/{}km/{}')
-# dir_in_met_fmt = join(dir_proj, 'wrf/{}')
 
 
 def get_script(year, month, day, dom_outer, dom_inner, proj_name,
-               cmaq_ver='532', compiler='gcc'):
+               dir_proj, cmaq_ver='532', compiler='gcc'):
     mn = calendar.month_name[month].lower()
     script = """
 setenv compiler {}
@@ -67,7 +57,7 @@ set day = {:02d}
 set dom_size_mother = {:02d}km
 set dom_size = {:02d}km
 set project_name = {}
-set dir_proj = /mnt/disk2/projects/${{project_name}}
+set dir_proj = {}
 
 set APPL = ${{project_name}}_${{dom_size}}_${{year}}_${{month}}
 set VRSN = v{}
@@ -117,7 +107,7 @@ limit
 time $BLD/$EXEC
 
 exit()""".format(compiler, year, month, mn, day, dom_outer, dom_inner,
-                 proj_name, cmaq_ver)
+                 proj_name, dir_proj, cmaq_ver)
     return script
 
 
