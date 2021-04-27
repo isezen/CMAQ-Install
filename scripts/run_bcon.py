@@ -54,12 +54,12 @@ set year = {}
 set month = {:02d}
 set month_name = {}
 set day = {:02d}
-set dom_size_mother = {:02d}km
-set dom_size = {:02d}km
+set dom_size_outer = {:02d}km
+set dom_size_inner = {:02d}km
 set project_name = {}
 set dir_proj = {}
 
-set APPL = ${{project_name}}_${{dom_size}}_${{year}}_${{month}}
+set APPL = ${{project_name}}_${{dom_size_inner}}_${{year}}_${{month}}
 set VRSN = v{}
 set BCTYPE = regrid
 
@@ -67,8 +67,8 @@ set BLD = ${{CMAQ_HOME}}/PREP/bcon/scripts/BLD_BCON_${{VRSN}}_${{compiler}}
 set EXEC = BCON_${{VRSN}}.exe
 cat $BLD/BCON_${{VRSN}}.cfg; echo " "; set echo
 
-setenv GRID_NAME ${{dom_size}}
-setenv GRIDDESC ${{dir_proj}}/mcip/${{dom_size}}/${{month_name}}/GRIDDESC
+setenv GRID_NAME ${{dom_size_inner}}
+setenv GRIDDESC ${{dir_proj}}/mcip/${{dom_size_inner}}/${{month_name}}/GRIDDESC
 setenv IOAPI_ISPH 20
 
 setenv IOAPI_LOG_WRITE F
@@ -85,15 +85,15 @@ set YYMMDD   = `date -ud "${{DATE}}" +%y%m%d`
 set YYYYMMDD = `date -ud "${{DATE}}" +%Y%m%d`
 
 if ( $BCON_TYPE == regrid ) then
-  setenv CTM_CONC_1 ${{dir_proj}}/cmaq/${{dom_size_mother}}/CCTM_CONC_${{VRSN}}_${{compiler}}_${{project_name}}_${{year}}_${{dom_size_mother}}_${{YYYYMMDD}}.nc
-  setenv MET_CRO_3D_CRS ${{dir_proj}}/mcip/${{dom_size_mother}}/${{month_name}}/METCRO3D_${{project_name}}_${{dom_size_mother}}_${{YYYYMMDD}}.nc
-  setenv MET_BDY_3D_FIN ${{dir_proj}}/mcip/${{dom_size}}/${{month_name}}/METBDY3D_${{project_name}}_${{dom_size}}_${{YYYYMMDD}}.nc
+  setenv CTM_CONC_1 ${{dir_proj}}/cmaq/${{dom_size_outer}}/CCTM_CONC_${{VRSN}}_${{compiler}}_${{project_name}}_${{year}}_${{dom_size_outer}}_${{YYYYMMDD}}.nc
+  setenv MET_CRO_3D_CRS ${{dir_proj}}/mcip/${{dom_size_outer}}/${{month_name}}/METCRO3D_${{project_name}}_${{dom_size_outer}}_${{YYYYMMDD}}.nc
+  setenv MET_BDY_3D_FIN ${{dir_proj}}/mcip/${{dom_size_inner}}/${{month_name}}/METBDY3D_${{project_name}}_${{dom_size_inner}}_${{YYYYMMDD}}.nc
   setenv BNDY_CONC_1    "$OUTDIR/BCON_${{VRSN}}_${{APPL}}_${{BCON_TYPE}}_${{YYYYMMDD}} -v"
 endif
 
 if ( $BCON_TYPE == profile ) then
   setenv BC_PROFILE $BLD/profiles/avprofile_cb6r3m_ae7_kmtbr_hemi2016_v53beta2_m3dry_col051_row068.csv
-  setenv MET_BDY_3D_FIN ${{dir_proj}}/mcip/${{dom_size}}/${{month_name}}/METBDY3D_${{proj_name}}_${{month_name}}_${{year}}_${{dom_size}}.nc
+  setenv MET_BDY_3D_FIN ${{dir_proj}}/mcip/${{dom_size_inner}}/${{month_name}}/METBDY3D_${{proj_name}}_${{month_name}}_${{year}}_${{dom_size_inner}}.nc
   setenv BNDY_CONC_1    "$OUTDIR/BCON_${{VRSN}}_${{APPL}}_${{BCON_TYPE}}_${{YYYYMMDD}} -v"
 endif
 
