@@ -154,7 +154,6 @@ if [ ! $? -eq 0 ]; then
 fi
 
 cd $CWD
-rm -rf CMAQ_REPO
 
 function save() {
   local str="$1"
