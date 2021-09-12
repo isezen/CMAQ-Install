@@ -47,7 +47,7 @@ class ExitHelper():
         signal.signal(signal.SIGINT, self.change_state)
 
     def change_state(self):
-        """ Change statie of exit status """
+        """ Change state of exit status """
         print("\nStopping...")
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         self._state = True
