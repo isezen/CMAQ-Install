@@ -119,7 +119,7 @@ mv $FOLDER $PATH_TO_APPS/WPS
 # -----------------------------------------------------------------------------
 # Install CMAQ
 echo "*CMAQ*"
-git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b 5.3.2 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 cd CMAQ_REPO
 git checkout -b my_branch
 
